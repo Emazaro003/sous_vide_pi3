@@ -1,0 +1,126 @@
+</html>
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Exemplo de campo de entrada somente leitura</title>
+	<link rel="stylesheet" type="text/css" href="cssTeste.css" media="screen" />
+	<style>
+		body {
+		margin: 0;
+		padding: 0;
+		background-color: #d3d3d3;
+		}
+
+		nav {
+		background-color: #333;
+		color: #fff;
+		height: 50px;
+		width: 100%;
+		display: flex;
+		justify-content: center;
+		align-items: center;
+		}
+
+		nav h1 {
+		margin: 0;
+		padding: 0;
+		font-size: 24px;
+		font-weight: bold;
+		text-align: center;
+		text-transform: uppercase;
+		}
+
+		.conteudo {
+		max-width: 1200px;
+		margin: 0 auto;
+		display: flex;
+		flex-wrap: wrap;
+		justify-content: left;
+		align-items: center;
+		}
+
+		.receita {
+		background-color: #fff;
+		border-radius: 10px;
+		width: max-content;
+		max-width: 600px;
+		margin: 5px;
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		justify-content: right;
+		border: 5px solid #000;
+		}
+
+		a {
+		width: 100%;
+		height: 50%;
+		}
+
+		img {
+		width: 375px;
+		height: 375px;
+		border-radius: 10px;
+		}
+
+		.formuario {
+		display: flex;
+		flex-direction: column;
+		justify-content: center;
+		width: 100%;
+		margin: 20px;
+		}
+		
+		.aq{
+		display: inline;
+		width: 0px;
+		height: 0px;
+	    }
+
+		.in {
+		margin: 5px 0;
+		padding: 10px;
+		width: 75%;
+		max-width: 400px;
+		font-size: 16px;
+		background-color: #fff;
+		cursor: default;
+		border:none;
+		}
+		
+		.sp {
+		margin: 2px 5px;
+		}
+
+		.btn{
+		background-color: #000;
+		color: #fff;
+		padding: 10px 20px;
+		border-radius: 5px;
+		border: none;
+		margin: 20px auto;
+		font-size: 16px;
+		width: 50%;
+		}
+	</style>
+  </head>
+  <body>
+	<nav>
+		<h1>Sous Vide</h1>
+	</nav>
+	<div class="conteudo">
+		{%for receita in receitas %}
+			<div class="receita">
+				<a><img src={{receita[6]}}></a>
+				<form method="POST" action="/" class="formuario">
+					<input class="in" type="text" name="string" value={{receita[1]}} readonly>
+					<input class="aq" type="text" name="aquecida" value="" readonly>
+					<span class="sp">Temperatura: {{receita[3]}}</span>
+					<span class="sp">Tempo: {{receita[4]}} Tipo: {{receita[5]}}</span>
+					<button class="btn" type="submit">Escolher...</button>
+				</form>
+			</div>
+		{% endfor %}
+	</div>
+  </body>
+</html>
