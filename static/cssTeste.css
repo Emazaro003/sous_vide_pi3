@@ -1,0 +1,29 @@
+@media (max-width: 528px) {
+    .conteudo {
+    width: max-content;
+    display: flex;
+    justify-content: center;
+    }
+
+    .receita {
+    width: max-content;
+    max-width: 100vh;
+    height: max-content;
+    }
+
+    .formuario {
+    font-size: 30px;
+    }
+    
+    .aq{
+    font-size: 45px;
+    }
+
+    .in {
+    font-size: 30px;
+    }
+
+    .btn{
+    font-size: 30px;
+    }
+}

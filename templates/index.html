@@ -3,7 +3,7 @@
 <html>
   <head>
     <title>Exemplo de campo de entrada somente leitura</title>
-	<link rel="stylesheet" type="text/css" href="cssTeste.css" media="screen" />
+	<link rel="stylesheet" type="text/css" href="{{url_for('static', filename='cssTeste.css')}}" media="screen" />
 	<style>
 		body {
 		margin: 0;
@@ -14,7 +14,7 @@
 		nav {
 		background-color: #333;
 		color: #fff;
-		height: 50px;
+		height: 10vh;
 		width: 100%;
 		display: flex;
 		justify-content: center;
@@ -42,8 +42,7 @@
 		.receita {
 		background-color: #fff;
 		border-radius: 10px;
-		width: max-content;
-		max-width: 600px;
+		width: 30vh;
 		margin: 5px;
 		display: flex;
 		flex-direction: column;
@@ -54,12 +53,11 @@
 
 		a {
 		width: 100%;
-		height: 50%;
 		}
 
 		img {
-		width: 375px;
-		height: 375px;
+		width: 100%;
+		height: 50%;
 		border-radius: 10px;
 		}
 
