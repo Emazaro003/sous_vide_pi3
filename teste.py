@@ -19,10 +19,10 @@ def conecta_BD():
     global cnx
     global cursor
     cnx = mysql.connector.connect(
-        host="db4free.net",
-        user="grupo4",
-        passwd="admin123",
-        database="pi3_sous_vide_g4",
+        host="***",
+        user="***",
+        passwd="***",
+        database="***",
     )
     cursor = cnx.cursor()
 
