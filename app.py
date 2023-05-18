@@ -1,5 +1,5 @@
-import time
 import json
+import time
 
 import mysql.connector
 import RPi.GPIO as GPIO
@@ -11,7 +11,7 @@ cnx = ""
 cursor = ""
 GPIO.setmode(GPIO.BOARD)
 app = Flask(__name__)
-app.config['JSONIFY_PRETTYPRINT_REGULAR'] = True
+app.config["JSONIFY_PRETTYPRINT_REGULAR"] = True
 porta_rele = 29
 id_sensor1 = 1
 id_sensor2 = 2
@@ -20,13 +20,9 @@ id_sensor2 = 2
 def conecta_BD():
     global cnx
     global cursor
-    cnx = mysql.connector.connect(
-        host="db4free.net",
-        user="grupo4",
-        passwd="admin123",
-        database="pi3_sous_vide_g4",
-    )
+    cnx = mysql.connector.connect(host="***", user="***", passwd="***", database="***")
     cursor = cnx.cursor()
+
 
 @app.route("/desconectar-banco", methods=["PSOT", "GET"])
 def desconecta_BD():
@@ -38,23 +34,23 @@ def desconecta_BD():
         cnx.commit()
         cnx.close()
     return jsonify({"response": "execuado"})
-    
 
-#---------------MAIN---------------------------
+
+# ---------------MAIN---------------------------
 @app.route("/", methods=["POST", "GET"])
 def index():
-    if request.method == 'POST':
-        aquecida=False #panelaAqueceu()
-        if request.form['aquecida'] != '':
+    if request.method == "POST":
+        aquecida = False  # panelaAqueceu()
+        if request.form["aquecida"] != "":
             aquecida = True
-        nomeReceita = request.form['string']
+        nomeReceita = request.form["string"]
         receita = pegaReceita(nomeReceita)
         # Faça algo com a string recebida, por exemplo, retornar ela como uma resposta
-        return render_template('receitas.html', receita=receita, aquecida=aquecida)
+        return render_template("receitas.html", receita=receita, aquecida=aquecida)
     if cnx == "":
         conecta_BD()
     receita = receitas()
-    return render_template('index.html', receitas=receita)
+    return render_template("index.html", receitas=receita)
 
 
 @app.route("/receitas", methods=["PSOT", "GET"])
@@ -64,7 +60,8 @@ def receitas():
     cursor.execute("SELECT * FROM Tabela_coccção")
     receitas = cursor.fetchall()
     print(receitas)
-    return receitas #jsonify({"receitas": receitas})
+    return receitas  # jsonify({"receitas": receitas})
+
 
 def pegaReceita(rec):
     if cnx == "":
@@ -72,7 +69,8 @@ def pegaReceita(rec):
     cursor.execute(f"SELECT * FROM Tabela_coccção where Nome = '{rec}';")
     receita = cursor.fetchone()
     print(receita)
-    return receita #jsonify({"receitas": receitas})
+    return receita  # jsonify({"receitas": receitas})
+
 
 @app.route("/salva-temperatura", methods=["GET"])
 def salva_temperatura():
@@ -80,8 +78,12 @@ def salva_temperatura():
     global cursor
     if cnx == "":
         conecta_BD()
-    cursor.execute(f"insert into Teste (id, temocelcius) values ({id_sensor1}, {temp.read_temp_sens1()});")
-    cursor.execute(f"insert into Teste (id, temocelcius) values ({id_sensor2}, {temp.read_temp_sens2()});")
+    cursor.execute(
+        f"insert into Teste (id, temocelcius) values ({id_sensor1}, {temp.read_temp_sens1()});"
+    )
+    cursor.execute(
+        f"insert into Teste (id, temocelcius) values ({id_sensor2}, {temp.read_temp_sens2()});"
+    )
     cnx.commit()
     return jsonify({"response": "execuado"})
 
@@ -109,4 +111,4 @@ def getTemp():
     )
 
 
-app.run(host='192.168.146.57')#hostname="192.168.146.57", port="8080"
+app.run(host="192.168.146.57")  # hostname="192.168.146.57", port="8080"
