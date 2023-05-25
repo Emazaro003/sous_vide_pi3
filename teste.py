@@ -46,6 +46,13 @@ def index():
         aquecida = False  # panelaAqueceu()
         if request.form["aquecida"] != "":
             aquecida = True
+            temperaturaReceita = request.form["temperatura"]
+            tempoReceita = request.form["tempo"]
+            tipoTempoReceita = request.form["tempo_tipo"]
+            print(
+                f"{temperaturaReceita} {tempoReceita} {type(tempoReceita)} {tipoTempoReceita}"
+            )
+            ligar(temperaturaReceita, tempoReceita, tipoTempoReceita)
         nomeReceita = request.form["string"]
         receita = pegaReceita(nomeReceita)
         # Faça algo com a string recebida, por exemplo, retornar ela como uma resposta
@@ -54,6 +61,9 @@ def index():
         conecta_BD()
     receita = receitas()
     return render_template("index.html", receitas=receita)
+
+
+# -----------------------------------------------
 
 
 @app.route("/receitas", methods=["PSOT", "GET"])
@@ -73,7 +83,6 @@ def pegaReceita(rec):
     return receita  # jsonify({"receitas": receitas})
 
 
-@app.route("/salva-temperatura", methods=["GET"])
 def salva_temperatura():
     global cnx
     global cursor
@@ -89,27 +98,27 @@ def salva_temperatura():
     return jsonify({"response": "execuado"})
 
 
-@app.route("/desligar", methods=["GET"])
 def desligar():
     # GPIO.setup(porta_rele, GPIO.IN)
     return jsonify({"response": "execuado"})
 
 
-@app.route("/ligar", methods=["GET"])
-def ligar():
-    # GPIO.setup(porta_rele, GPIO.OUT)
-    # GPIO.output(porta_rele, 1)
-    return jsonify({"response": "execuado"})
-
-
-@app.route("/temperatura", methods=["GET"])
 def getTemp():
-    return jsonify(
-        {
-            "temperatura_sensor_1": temp.read_temp_sens1(),
-            "temperatura_sensor_2": temp.read_temp_sens2(),
-        }
-    )
+    temperaturas = {
+        "temperatura_sensor_1": temp.read_temp_sens1(),
+        "temperatura_sensor_2": temp.read_temp_sens2(),
+    }
+    return temperaturas
 
 
-app.run(host="192.168.18.144")  # host="192.168.146.57", port="8080"
+def ligar(temperatura, tempo, tipoTempo):
+    temperaturas = getTemp()
+
+    if temperaturas["temperatura_sensor_1"] < temperatura:
+        GPIO.setup(porta_rele, GPIO.OUT)
+        while temperaturas["temperatura_sensor_1"] < temperatura:
+            time.sleep(10)
+            temperaturas = getTemp()
+
+
+app.run(host="127.0.0.1")  # host="192.168.146.57", port="8080"

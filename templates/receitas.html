@@ -66,6 +66,7 @@
 		flex-direction: column;
 		justify-content: center;
 		width: 100%;
+		overflow: none;
 		}
 		
 		.aq{
@@ -77,6 +78,14 @@
 	    
 	    .sp {
 		margin: 2px 5px;
+		border: none;
+		}
+
+		.ipla{
+		font-size: 30px;
+		overflow: none;
+		width: 50px;
+		padding: 0;
 		}
 
 		.in {
@@ -112,8 +121,12 @@
 			<form method="POST" action="/" class="formuario">
 				<input class="in" type="text" name="string" value={{receita[1]}} readonly>
 				<input class="aq" type="text" name="aquecida" value="aquecida" readonly>
-				<span class="sp">Temperatura: {{receita[3]}}</span>
-				<span class="sp">Tempo: {{receita[4]}} Tipo: {{receita[5]}}</span>
+				
+				
+				
+
+				<span class="sp">Temperatura: <input class="sp ipla" type="number" name="temperatura" value="{{receita[3]}}" readonly></span>
+				<span class="sp">Tempo: <input class="sp ipla" type="number" name="tempo" value="{{receita[4]}}" readonly> <input class="sp ipla" type="text" name="tempo_tipo" value="{{receita[5]}}" readonly></span>
 				{% if aquecida %}
 					<button class="btn" type="submit">Começar</button>
 				{% else %}
