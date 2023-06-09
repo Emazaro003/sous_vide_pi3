@@ -1,13 +1,17 @@
-import mysql.connector
+import time
 
-# import RPi.GPIO as GPIO
+import mysql.connector
+import RPi.GPIO as GPIO
 from flask import Flask, jsonify, render_template, request
 
-# import temp
+import temp
 
 cnx = ""
 cursor = ""
-# GPIO.setmode(GPIO.BOARD)
+cancela = False
+resistenciaTaLigada = True
+podeInserir = False
+GPIO.setmode(GPIO.BOARD)
 app = Flask(__name__)
 app.config["JSONIFY_PRETTYPRINT_REGULAR"] = True
 porta_rele = 29
@@ -19,12 +23,13 @@ def conecta_BD():
     global cnx
     global cursor
     cnx = mysql.connector.connect(
-        host="***",
-        user="***",
-        passwd="***",
-        database="***",
+        host="*",
+        user="*",
+        passwd="*",
+        database="*",
     )
     cursor = cnx.cursor()
+    print("Conectou-se ao banco")
 
 
 @app.route("/desconectar-banco", methods=["PSOT", "GET"])
@@ -32,7 +37,7 @@ def desconecta_BD():
     global cnx
     global cursor
     if cnx != "":
-        print("ta saindo")
+        print("Desconectou-se do banco")
         cursor.close()
         cnx.commit()
         cnx.close()
@@ -42,21 +47,33 @@ def desconecta_BD():
 # ---------------MAIN---------------------------
 @app.route("/", methods=["POST", "GET"])
 def index():
+    global cancela
+    global podeInserir
+    cancela = False
+
+    desligar()
     if request.method == "POST":
-        aquecida = False  # panelaAqueceu()
-        if request.form["aquecida"] != "":
+        podeInserir = False
+        aquecida = False
+        if request.form["aquecida"] == "aquecida":
             aquecida = True
-            temperaturaReceita = request.form["temperatura"]
-            tempoReceita = request.form["tempo"]
+            temperaturaReceita = float(request.form["temperatura"])
+            tempoReceita = float(request.form["tempo"])
             tipoTempoReceita = request.form["tempo_tipo"]
-            print(
-                f"{temperaturaReceita} {tempoReceita} {type(tempoReceita)} {tipoTempoReceita}"
-            )
-            ligar(temperaturaReceita, tempoReceita, tipoTempoReceita)
+            aquecer(temperaturaReceita, tempoReceita, tipoTempoReceita)
+        if request.form["cancela"] == "cancela":
+            cancela = True
+            aquecida = False
         nomeReceita = request.form["string"]
         receita = pegaReceita(nomeReceita)
-        # Faça algo com a string recebida, por exemplo, retornar ela como uma resposta
-        return render_template("receitas.html", receita=receita, aquecida=aquecida)
+        return render_template(
+            "receitas.html",
+            receita=receita,
+            aquecida=aquecida,
+            cancela=cancela,
+            inserir=podeInserir,
+        )
+
     if cnx == "":
         conecta_BD()
     receita = receitas()
@@ -98,11 +115,27 @@ def salva_temperatura():
     return jsonify({"response": "execuado"})
 
 
+@app.route("/desligar", methods=["PSOT", "GET"])
 def desligar():
-    # GPIO.setup(porta_rele, GPIO.IN)
+    global porta_rele
+    global resistenciaTaLigada
+
+    if resistenciaTaLigada:
+        GPIO.setup(porta_rele, GPIO.IN)
+        resistenciaTaLigada = False
     return jsonify({"response": "execuado"})
 
 
+def ligar():
+    global porta_rele
+    global resistenciaTaLigada
+
+    if not resistenciaTaLigada:
+        GPIO.setup(porta_rele, GPIO.OUT)
+        resistenciaTaLigada = True
+
+
+@app.route("/temp", methods=["PSOT", "GET"])
 def getTemp():
     temperaturas = {
         "temperatura_sensor_1": temp.read_temp_sens1(),
@@ -111,14 +144,46 @@ def getTemp():
     return temperaturas
 
 
-def ligar(temperatura, tempo, tipoTempo):
+def tempEMenor(tempReceita):
     temperaturas = getTemp()
+    if temperaturas["temperatura_sensor_1"] < tempReceita:
+        return True
+    else:
+        return False
 
-    if temperaturas["temperatura_sensor_1"] < temperatura:
-        GPIO.setup(porta_rele, GPIO.OUT)
-        while temperaturas["temperatura_sensor_1"] < temperatura:
+
+def tempoControle(tempo, tipoTempo, tempReceita):
+    global cancela
+    tempReceita = tempReceita * 0.9  # Olhar sempre para 90% da temperatura
+    # if tipoTempo == "min":
+    cont = 0
+    while cont < ((tempo * 60) / 3):
+        temperaturaEMenor = tempEMenor(tempReceita)
+        if cancela:
+            desligar()
+            return
+        if temperaturaEMenor:
+            ligar()
+        if not temperaturaEMenor:
+            desligar()
+        cont = cont + 1
+
+
+def aquecer(tempReceita, tempo, tipoTempo):
+    global cancela
+    global podeInserir
+
+    tempSensores = getTemp()
+    if tempSensores["temperatura_sensor_1"] < tempReceita:
+        if cancela:
+            desligar()
+            return
+        ligar()
+        while tempEMenor(tempReceita):
             time.sleep(10)
-            temperaturas = getTemp()
+        desligar()
+    podeInserir = True
+    tempoControle(tempo, tipoTempo, tempReceita)
 
 
-app.run(host="127.0.0.1")  # host="192.168.146.57", port="8080"
+app.run(host="127.0.0.1")  # host="192.168.57.57", port="8080"

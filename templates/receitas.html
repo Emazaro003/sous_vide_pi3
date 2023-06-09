@@ -120,20 +120,32 @@
 			<a><img src={{receita[6]}}></a>
 			<form method="POST" action="/" class="formuario">
 				<input class="in" type="text" name="string" value={{receita[1]}} readonly>
-				<input class="aq" type="text" name="aquecida" value="aquecida" readonly>
-				
+				<input class="aq" id="aquecida" type="text" name="aquecida" value="" readonly>
+				<input class="aq" id="cancel" type="text" name="cancela" value="" readonly>
 				
 				
 
 				<span class="sp">Temperatura: <input class="sp ipla" type="number" name="temperatura" value="{{receita[3]}}" readonly></span>
 				<span class="sp">Tempo: <input class="sp ipla" type="number" name="tempo" value="{{receita[4]}}" readonly> <input class="sp ipla" type="text" name="tempo_tipo" value="{{receita[5]}}" readonly></span>
 				{% if aquecida %}
-					<button class="btn" type="submit">Começar</button>
+					{% if inserir %}
+						<span class="in"> Pode inserir o alimento!</span>
+					{% endif %}
+					<button class="btn" onclick="OnCancel()" type="submit">Cancelar</button>
 				{% else %}
-					<button class="btn" type="submit">Aquecer</button>
+					<button class="btn" onclick="OnAquecida()" type="submit">Aquecer</button>
 				{% endif %}
 			</form>
 		</div>
 	</div>
   </body>
+  <script>
+	function OnAquecida(){
+		document.getElementById("aquecida").value = "aquecida";
+	}
+
+	function OnCancel(){
+		document.getElementById("cancel").value = "cancela";
+	}
+  </script>
 </html>
